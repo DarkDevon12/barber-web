@@ -101,8 +101,8 @@
 
         <label for="corteBarba">Corte e Barba?</label>
         <select id="corteBarba" required>
-            <option value="Sim.">Sim</option>
-            <option value="Não, apenas Corte.">Não</option>
+            <option value="Sim">Sim</option>
+            <option value="Apenas Corte">Não</option>
         </select>
 
         <label for="horario">Horário:</label>
@@ -127,7 +127,7 @@
             // Criar a mensagem que será enviada no WhatsApp
             var mensagem = `Olá, gostaria de agendar um serviço: 
         Tipo de Corte: ${tipoCorte}, 
-        Corte + Barba: ${corteBarba}, 
+        Corte e Barba?: ${corteBarba}, 
         Horário: ${horario}, 
         Dia: ${dia}.`;
 
