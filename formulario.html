@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="images/icon.svg" type="image/x-icon">
+
+    <title>Agendamento de Corte</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 2rem;
+            margin: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        button:active {
+            background-color: #1e7e34;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Agendamento de Corte</h1>
+
+    <form id="agendamentoForm">
+        <label for="tipoCorte">Tipo de Corte:</label>
+        <select id="tipoCorte" required>
+            <option value="Corte Simples">Corte Simples</option>
+            <option value="Corte Degradê">Corte Degradê</option>
+            <option value="Corte Desenhado">Corte Desenhado</option>
+        </select>
+
+        <label for="corteBarba">Corte + Barba:</label>
+        <select id="corteBarba" required>
+            <option value="Corte e Barba">Sim</option>
+            <option value="Somente Corte">Não</option>
+        </select>
+
+        <label for="horario">Horário:</label>
+        <input type="time" id="horario" required>
+
+        <label for="dia">Dia:</label>
+        <input type="date" id="dia" required>
+
+        <button type="submit">Agendar via WhatsApp</button>
+    </form>
+
+    <script>
+        document.getElementById('agendamentoForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Coletar dados do formulário
+            var tipoCorte = document.getElementById('tipoCorte').value;
+            var corteBarba = document.getElementById('corteBarba').value;
+            var horario = document.getElementById('horario').value;
+            var dia = document.getElementById('dia').value;
+
+            // Criar a mensagem que será enviada no WhatsApp
+            var mensagem = `Olá, gostaria de agendar um serviço: 
+        Tipo de Corte: ${tipoCorte}, 
+        Corte + Barba: ${corteBarba}, 
+        Horário: ${horario}, 
+        Dia: ${dia}.`;
+
+            // Redirecionar para o WhatsApp
+            var numeroWhatsApp = "5517981117587"; // Coloque o número de WhatsApp com o código do país
+            var url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+            window.open(url, '_blank');
+        });
+    </script>
+
+</body>
+
+</html>
