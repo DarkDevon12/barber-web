@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="images/icon.svg" type="image/x-icon">
-
     <title>Agendamento de Corte</title>
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f0f0f0;
+            background: url(./images/fundo-formulario.jpg) no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,15 +19,25 @@
             flex-direction: column;
         }
 
+        a {
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: #ffffff;
+        }
+
         h1 {
             text-align: center;
-            color: #333;
+            color: white;
             font-size: 2rem;
             margin: 20px;
         }
 
         form {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -38,7 +48,7 @@
         label {
             font-weight: bold;
             margin-bottom: 5px;
-            color: #555;
+            color: white;
         }
 
         input,
@@ -49,6 +59,8 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.158);
+            color: #333;
         }
 
         input:focus,
@@ -78,9 +90,16 @@
             background-color: #1e7e34;
         }
 
-        .botoes button, a{
-                margin: 10px;
-            }
+        .botoes button,
+        a {
+            margin: 10px;
+        }
+
+        .indisponivel {
+            color: red;
+            font-size: 1rem;
+            font-weight: bold;
+        }
 
         /* Responsividade */
         @media (max-width: 600px) {
@@ -92,7 +111,9 @@
             body {
                 margin: 2rem;
             }
-            .botoes button, a{
+
+            .botoes button,
+            a {
                 margin: 10px;
             }
         }
@@ -118,42 +139,140 @@
         </select>
 
         <label for="horario">Horário:</label>
-        <input type="time" id="horario" required>
+        <select id="horario" required>
+            <!-- Horários de 30 em 30 minutos, das 9h às 19h -->
+        </select>
 
         <label for="dia">Dia:</label>
         <input type="date" id="dia" required>
 
         <div class="botoes">
             <button type="submit">Agendar via WhatsApp</button>
-            <a href="index.html" class="botao-voltar">Voltar a pagina inicial</a>
+            <a href="index.html" class="botao-voltar">Voltar à página inicial</a>
         </div>
     </form>
 
+    <div id="horariosIndisponiveis" class="indisponivel"></div>
+
     <script>
+        // Função para carregar horários agendados do localStorage
+        function carregarHorarios() {
+            const horarios = localStorage.getItem('horariosIndisponiveis');
+            if (horarios) {
+                return JSON.parse(horarios);
+            }
+            return [];
+        }
+    
+        // Função para salvar horários no localStorage
+        function salvarHorarios(horarios) {
+            localStorage.setItem('horariosIndisponiveis', JSON.stringify(horarios));
+        }
+    
+        // Verifica se o horário está disponível
+        function verificarHorario(dia, horario) {
+            const horariosIndisponiveis = carregarHorarios();
+            return horariosIndisponiveis.some(item => item.dia === dia && item.horario === horario);
+        }
+    
+        // Função para gerar os horários disponíveis
+        function gerarHorariosDisponiveis() {
+            const selectHorario = document.getElementById("horario");
+            const horarios = [];
+            for (let hour = 9; hour <= 19; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const hora = hour < 10 ? '0' + hour : hour;
+                    const min = minute < 10 ? '0' + minute : minute;
+                    const horario = `${hora}:${min}`;
+                    horarios.push(horario);
+                }
+            }
+            horarios.forEach(horario => {
+                const option = document.createElement("option");
+                option.value = horario;
+                option.textContent = horario;
+                selectHorario.appendChild(option);
+            });
+        }
+    
+        // Atualiza a lista de horários indisponíveis
+        function atualizarHorariosIndisponiveis() {
+            const horariosIndisponiveis = carregarHorarios();
+            const container = document.getElementById("horariosIndisponiveis");
+            container.innerHTML = '';
+    
+            // Filtra os agendamentos para remover os passados
+            const dataAtual = new Date();
+    
+            // Filtra os horários para garantir que apenas os futuros sejam exibidos
+            const horariosValidos = horariosIndisponiveis.filter(item => {
+                const dataAgendamento = new Date(item.dia);
+                return dataAgendamento >= dataAtual; // Exibe apenas os agendamentos futuros
+            });
+    
+            // Atualiza a exibição dos horários
+            if (horariosValidos.length > 0) {
+                horariosValidos.forEach(item => {
+                    const div = document.createElement('div');
+                    div.textContent = `${item.dia} - ${item.horario} (Indisponível)`;
+                    container.appendChild(div);
+                });
+            } else {
+                container.textContent = 'Nenhum horário agendado.';
+            }
+        }
+    
+        // Função para verificar se a data é um dia útil
+        function verificarDiaUtil(dia) {
+            const data = new Date(dia);
+            const diaSemana = data.getDay(); // 0: Domingo, 1: Segunda, ..., 6: Sábado
+            return diaSemana >= 1 && diaSemana <= 5; // Retorna true se for de segunda a sexta
+        }
+    
+        // Ao enviar o formulário, valida o horário e redireciona para o WhatsApp
         document.getElementById('agendamentoForm').addEventListener('submit', function (event) {
             event.preventDefault();
-
-            // Coletar dados do formulário
-            var tipoCorte = document.getElementById('tipoCorte').value;
-            var corteBarba = document.getElementById('corteBarba').value;
-            var horario = document.getElementById('horario').value;
-            var dia = document.getElementById('dia').value;
-
-            // Criar a mensagem que será enviada no WhatsApp
-            var mensagem = `Olá, gostaria de agendar um serviço: 
-        Tipo de Corte: ${tipoCorte}, 
-        Corte e Barba?: ${corteBarba}, 
-        Horário: ${horario}, 
-        Dia: ${dia}.`;
-
-            // Redirecionar para o WhatsApp
-            var numeroWhatsApp = "5517981117587"; // Coloque o número de WhatsApp com o código do país
-            var url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
-
+    
+            const tipoCorte = document.getElementById('tipoCorte').value;
+            const corteBarba = document.getElementById('corteBarba').value;
+            const horario = document.getElementById('horario').value;
+            const dia = document.getElementById('dia').value;
+    
+            // Verifica se a data é um dia útil
+            if (!verificarDiaUtil(dia)) {
+                alert('O agendamento só pode ser feito de segunda a sexta-feira!');
+                return;
+            }
+    
+            // Verifica se o horário já está agendado
+            if (verificarHorario(dia, horario)) {
+                alert('Este horário já está reservado. Escolha outro!');
+                return;
+            }
+    
+            // Cria a mensagem para o WhatsApp
+            const mensagem = `Olá, gostaria de agendar um serviço: 
+                Tipo de Corte: ${tipoCorte}, 
+                Corte e Barba?: ${corteBarba}, 
+                Horário: ${horario}, 
+                Dia: ${dia}.`;
+    
+            // Redireciona para o WhatsApp
+            const numeroWhatsApp = "5517981117587"; // Número de WhatsApp
+            const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
+    
+            // Salva o novo horário agendado
+            const horariosIndisponiveis = carregarHorarios();
+            horariosIndisponiveis.push({ dia: dia, horario: horario });
+            salvarHorarios(horariosIndisponiveis);
+    
+            // Atualiza a lista de horários indisponíveis
+            atualizarHorariosIndisponiveis();
         });
+    
+        // Chama a função para gerar os horários e atualizar a lista de horários
+        gerarHorariosDisponiveis();
+        atualizarHorariosIndisponiveis();
     </script>
-
-</body>
-
-</html>
+    
