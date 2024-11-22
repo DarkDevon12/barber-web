@@ -59,13 +59,13 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
-            background-color: rgba(255, 255, 255, 0.158);
-            color: #333;
+            background-color: rgb(0, 0, 0);
+            color: #ffffff;
         }
 
         input:focus,
         select:focus {
-            border-color: #007bff;
+            border-color: #ffffff;
             outline: none;
             box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
         }
@@ -130,6 +130,24 @@
             <option value="Corte Simples">Buzz Cut (Militar)</option>
             <option value="Corte Degradê">Corte Degradê</option>
             <option value="Corte Desenhado">Corte Desenhado</option>
+            <option value="Corte Social">Corte Social</option>
+            <option value="Corte Undercut">Undercut</option>
+            <option value="Corte Fade">Fade</option>
+            <option value="Corte Pompadour">Pompadour</option>
+            <option value="Corte Razor Part">Razor Part</option>
+            <option value="Corte Caesar">Corte Caesar</option>
+            <option value="Corte French Crop">French Crop</option>
+            <option value="Corte Mullet">Mullet</option>
+            <option value="Corte Mohawk">Mohawk</option>
+            <option value="Corte Texturizado">Texturizado</option>
+            <option value="Corte Longo">Corte Longo</option>
+            <option value="Corte Afro">Corte Afro</option>
+            <option value="Corte Flat Top">Flat Top</option>
+            <option value="Corte Quiff">Quiff</option>
+            <option value="Corte Low Fade">Low Fade</option>
+            <option value="Corte High Fade">High Fade</option>
+            <option value="Corte Médio">Corte Médio</option>
+
         </select>
 
         <label for="corteBarba">Corte e Barba?</label>
@@ -163,18 +181,18 @@
             }
             return [];
         }
-    
+
         // Função para salvar horários no localStorage
         function salvarHorarios(horarios) {
             localStorage.setItem('horariosIndisponiveis', JSON.stringify(horarios));
         }
-    
+
         // Verifica se o horário está disponível
         function verificarHorario(dia, horario) {
             const horariosIndisponiveis = carregarHorarios();
             return horariosIndisponiveis.some(item => item.dia === dia && item.horario === horario);
         }
-    
+
         // Função para gerar os horários disponíveis
         function gerarHorariosDisponiveis() {
             const selectHorario = document.getElementById("horario");
@@ -194,22 +212,22 @@
                 selectHorario.appendChild(option);
             });
         }
-    
+
         // Atualiza a lista de horários indisponíveis
         function atualizarHorariosIndisponiveis() {
             const horariosIndisponiveis = carregarHorarios();
             const container = document.getElementById("horariosIndisponiveis");
             container.innerHTML = '';
-    
+
             // Filtra os agendamentos para remover os passados
             const dataAtual = new Date();
-    
+
             // Filtra os horários para garantir que apenas os futuros sejam exibidos
             const horariosValidos = horariosIndisponiveis.filter(item => {
                 const dataAgendamento = new Date(item.dia);
                 return dataAgendamento >= dataAtual; // Exibe apenas os agendamentos futuros
             });
-    
+
             // Atualiza a exibição dos horários
             if (horariosValidos.length > 0) {
                 horariosValidos.forEach(item => {
@@ -221,58 +239,57 @@
                 container.textContent = 'Nenhum horário agendado.';
             }
         }
-    
+
         // Função para verificar se a data é um dia útil
         function verificarDiaUtil(dia) {
             const data = new Date(dia);
             const diaSemana = data.getDay(); // 0: Domingo, 1: Segunda, ..., 6: Sábado
             return diaSemana >= 1 && diaSemana <= 5; // Retorna true se for de segunda a sexta
         }
-    
+
         // Ao enviar o formulário, valida o horário e redireciona para o WhatsApp
         document.getElementById('agendamentoForm').addEventListener('submit', function (event) {
             event.preventDefault();
-    
+
             const tipoCorte = document.getElementById('tipoCorte').value;
             const corteBarba = document.getElementById('corteBarba').value;
             const horario = document.getElementById('horario').value;
             const dia = document.getElementById('dia').value;
-    
+
             // Verifica se a data é um dia útil
             if (!verificarDiaUtil(dia)) {
                 alert('O agendamento só pode ser feito de segunda a sexta-feira!');
                 return;
             }
-    
+
             // Verifica se o horário já está agendado
             if (verificarHorario(dia, horario)) {
                 alert('Este horário já está reservado. Escolha outro!');
                 return;
             }
-    
+
             // Cria a mensagem para o WhatsApp
             const mensagem = `Olá, gostaria de agendar um serviço: 
                 Tipo de Corte: ${tipoCorte}, 
                 Corte e Barba?: ${corteBarba}, 
                 Horário: ${horario}, 
                 Dia: ${dia}.`;
-    
+
             // Redireciona para o WhatsApp
             const numeroWhatsApp = "5517981117587"; // Número de WhatsApp
             const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
-    
+
             // Salva o novo horário agendado
             const horariosIndisponiveis = carregarHorarios();
             horariosIndisponiveis.push({ dia: dia, horario: horario });
             salvarHorarios(horariosIndisponiveis);
-    
+
             // Atualiza a lista de horários indisponíveis
             atualizarHorariosIndisponiveis();
         });
-    
+
         // Chama a função para gerar os horários e atualizar a lista de horários
         gerarHorariosDisponiveis();
         atualizarHorariosIndisponiveis();
     </script>
-    
